@@ -7,10 +7,10 @@ module Fastlane
       def self.run(params)
         UI.message("The pgyer plugin is working.")
 
-        api_host = "http://qiniu-storage.pgyer.com/apiv1/app/upload"
+        api_host = "https://www.pgyer.com/apiv2/app/upload"
         api_key = params[:api_key]
         user_key = params[:user_key]
-
+        build_channel_shortcut = params[:build_channel_shortcut]
         build_file = [
           params[:ipa],
           params[:apk]
@@ -36,7 +36,10 @@ module Fastlane
         if install_type.nil?
           install_type = "1"
         end
-
+        # 渠道名称
+        if build_channel_shortcut.nil?
+          build_channel_shortcut=""
+        end
         # start upload
         conn_options = {
           request: {
@@ -58,6 +61,7 @@ module Fastlane
             'password' => password,
             'updateDescription' => update_description,
             'installType' => install_type,
+            'buildChannelShortcut' => build_channel_shortcut,
             'file' => Faraday::UploadIO.new(build_file, 'application/octet-stream')
         }
 
@@ -140,7 +144,12 @@ module Fastlane
                                   env_name: "PGYER_INSTALL_TYPE",
                                description: "set install type for app (1=public, 2=password, 3=invite). Please set as a string",
                                   optional: true,
-                                      type: String)
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :install_type,
+                                  env_name: "PGYER_INSTALL_TYPE",
+                               description: "set install type for app (1=public, 2=password, 3=invite). Please set as a string",
+                                  optional: true,
+                                      type: String)                            
         ]
       end
 
